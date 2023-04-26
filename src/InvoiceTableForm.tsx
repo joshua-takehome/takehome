@@ -116,7 +116,23 @@ export const InvoiceTableForm = () => {
           <Heading>Invoices</Heading>
         </Flex>
         <Flex my="16px">
-          <Button mr="16px" colorScheme="green">
+          <Button
+            onClick={() => {
+              return setFormState((prev) => {
+                return produce(prev, (draft) => {
+                  draft.push({
+                    id: prev.length + 1,
+                    charges: [],
+                    name: "Untitled",
+                    due_date: "",
+                    status: "draft",
+                  });
+                });
+              });
+            }}
+            mr="16px"
+            colorScheme="green"
+          >
             Create
           </Button>
           <Button colorScheme="teal">Save</Button>

@@ -94,6 +94,15 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
           </TableContainer>
         </ModalBody>
         <ModalFooter>
+          <Button
+            colorScheme="green"
+            mr={3}
+            onClick={() => {
+              console.log("write me");
+            }}
+          >
+            Add Charge
+          </Button>
           <Button colorScheme="blue" mr={3} onClick={onClose}>
             Close
           </Button>
@@ -103,16 +112,13 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
   );
 };
 
-const InvoiceTableFormBody = () => {
+interface InvoiceTableFormBodyProps {
+  setModalState: React.Dispatch<React.SetStateAction<ChargeModalState>>;
+}
+
+const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
+  const { setModalState } = props;
   const { form, setForm } = useInvoiceForm();
-  const [modalState, setModalState] = React.useState<ChargeModalState>({
-    isOpen: false,
-    charges: null,
-    idx: null,
-  });
-  const closeModal = () => {
-    setModalState({ charges: null, isOpen: false, idx: null });
-  };
   return (
     <>
       {form.map((invoice, idx) => {
@@ -180,18 +186,6 @@ const InvoiceTableFormBody = () => {
           </Tr>
         );
       })}
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={() => {
-          setModalState({ charges: null, isOpen: false, idx: null });
-        }}
-      >
-        <ChargeFormModalBody
-          charges={modalState.charges}
-          idx={modalState.idx}
-          onClose={closeModal}
-        />
-      </Modal>
     </>
   );
 };
@@ -201,6 +195,14 @@ export const InvoiceTableForm = () => {
   const [formState, setFormState] = React.useState<Invoice[]>(
     initialInvoices.payload
   );
+  const [modalState, setModalState] = React.useState<ChargeModalState>({
+    isOpen: false,
+    charges: null,
+    idx: null,
+  });
+  const closeModal = () => {
+    setModalState({ charges: null, isOpen: false, idx: null });
+  };
   return (
     <InvoiceFormContext.Provider
       value={{ form: formState, setForm: setFormState }}
@@ -244,10 +246,22 @@ export const InvoiceTableForm = () => {
               </Tr>
             </Thead>
             <Tbody>
-              <InvoiceTableFormBody />
+              <InvoiceTableFormBody setModalState={setModalState} />
             </Tbody>
           </Table>
         </TableContainer>
+        <Modal
+          isOpen={modalState.isOpen}
+          onClose={() => {
+            setModalState({ charges: null, isOpen: false, idx: null });
+          }}
+        >
+          <ChargeFormModalBody
+            charges={modalState.charges}
+            idx={modalState.idx}
+            onClose={closeModal}
+          />
+        </Modal>
       </Flex>
     </InvoiceFormContext.Provider>
   );

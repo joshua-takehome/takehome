@@ -52,14 +52,13 @@ type ChargeModalState =
 
 interface ChargeModalBodyProps {
   onClose: () => void;
-  charges: Array<Charge> | null;
   idx: number | null;
 }
 
 const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
   const { form, setForm } = useInvoiceForm();
-  const { onClose, charges, idx } = props;
-  if (charges === null || idx === null) return null;
+  const { onClose, idx } = props;
+  if (idx === null) return null;
   return (
     <>
       <ModalOverlay />
@@ -76,15 +75,34 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
                 </Tr>
               </Thead>
               <Tbody>
-                {charges.map((charge) => {
-                  const name = Object.keys(charge)[0];
+                {form[idx].charges.map((charge, chargeIdx) => {
                   return (
-                    <Tr>
+                    <Tr key={charge.id}>
                       <Td>
-                        <Input value={name} />
+                        <Input
+                          onChange={(e) => {
+                            setForm((prev) => {
+                              return produce(prev, (draft) => {
+                                draft[idx].charges[chargeIdx].name =
+                                  e.target.value;
+                              });
+                            });
+                          }}
+                          value={charge.name}
+                        />
                       </Td>
                       <Td>
-                        <Input value={charge[name]} />
+                        <Input
+                          onChange={(e) => {
+                            setForm((prev) => {
+                              return produce(prev, (draft) => {
+                                draft[idx].charges[chargeIdx].value =
+                                  e.target.value;
+                              });
+                            });
+                          }}
+                          value={charge.value}
+                        />
                       </Td>
                     </Tr>
                   );
@@ -98,7 +116,15 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
             colorScheme="green"
             mr={3}
             onClick={() => {
-              console.log("write me");
+              return setForm((prev) => {
+                return produce(prev, (draft) => {
+                  draft[idx].charges.push({
+                    id: window.crypto.randomUUID(),
+                    name: "Untitled",
+                    value: "0.00",
+                  });
+                });
+              });
             }}
           >
             Add Charge

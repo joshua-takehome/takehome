@@ -1,13 +1,41 @@
 // The key is the name of the charge; the value is the price.
-export type Charge = Record<string, string>;
+export type ApiCharge = Record<string, string>;
 
-export interface Invoice {
+export interface Charge {
+  id: string;
+  name: string;
+  value: string;
+}
+
+export interface InvoiceBase {
   id: number;
   due_date: string;
   name: string;
   status: string;
+}
+
+export interface InvoiceApi extends InvoiceBase {
+  charges: ApiCharge[];
+}
+
+export interface Invoice extends InvoiceBase {
   charges: Charge[];
 }
+
+/**
+ * The charges that the API returns are somewhat difficult to handle
+ * because they lack IDs; here we map them to a form more amenable
+ * to the UI.
+ */
+const mapCharge = (charge: ApiCharge): Charge => {
+  const id = window.crypto.randomUUID();
+  const name = Object.keys(charge)[0];
+  return {
+    id,
+    name,
+    value: charge[name],
+  };
+};
 
 /**
  * The browser likes dates that are of the form:
@@ -24,10 +52,11 @@ export const parseDate = (apiDate: string): string => {
   return `${year}-${month}-${day}`;
 };
 
-const fixDate = (invoice: Invoice): Invoice => {
+const mapInvoice = (invoice: InvoiceApi): Invoice => {
   return {
     ...invoice,
     due_date: parseDate(invoice.due_date),
+    charges: invoice.charges.map((charge) => mapCharge(charge)),
   };
 };
 
@@ -41,8 +70,8 @@ export const fetchInvoices = async (): Promise<Invoice[]> => {
   if (!res.ok) {
     throw new Error("Failed to fetch invoices.");
   }
-  const json: Invoice[] = await res.json();
-  return json.map((apiResponse: Invoice) => {
-    return fixDate(apiResponse);
+  const json: InvoiceApi[] = await res.json();
+  return json.map((apiResponse: InvoiceApi) => {
+    return mapInvoice(apiResponse);
   }) as Invoice[];
 };

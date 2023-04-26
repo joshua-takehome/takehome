@@ -164,6 +164,7 @@ const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
   return (
     <>
       {form.map((invoice, idx) => {
+        /* TODO: The logic for these filters should be extracted out and unit tested. */
         if (statusFilter !== "" && invoice.status !== statusFilter) {
           return null;
         }
@@ -249,9 +250,6 @@ const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
                   setForm((prev) => {
                     const newForm = prev.filter((x) => x.id !== invoice.id);
                     return newForm;
-                    return produce(prev, (draft) => {
-                      const newForm = draft.filter((x) => x.id !== invoice.id);
-                    });
                   });
                 }}
                 colorScheme="red"
@@ -290,6 +288,7 @@ export const InvoiceTableForm = () => {
         <Flex width="100%" justifyContent="center">
           <Heading>Invoices</Heading>
         </Flex>
+        {/* TODO: If I had more time, I would extract out these filters out into a separate component. */}
         <Flex my="16px">
           <Button
             onClick={() => {

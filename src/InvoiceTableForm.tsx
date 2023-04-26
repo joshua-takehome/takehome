@@ -242,7 +242,7 @@ export const InvoiceTableForm = () => {
             onClick={() => {
               return setFormState((prev) => {
                 return produce(prev, (draft) => {
-                  draft.push({
+                  draft.unshift({
                     id: prev.length + 1,
                     charges: [],
                     name: "Untitled",
@@ -268,6 +268,7 @@ export const InvoiceTableForm = () => {
                 <Th>Name</Th>
                 <Th>Status</Th>
                 <Th>Due Date</Th>
+                <Th>Sum</Th>
                 <Th>Charges</Th>
               </Tr>
             </Thead>

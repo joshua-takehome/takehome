@@ -71,7 +71,7 @@ export const fetchInvoices = async (): Promise<Invoice[]> => {
     throw new Error("Failed to fetch invoices.");
   }
   const json: InvoiceApi[] = await res.json();
-  return json.map((apiResponse: InvoiceApi) => {
+  return json.reverse().map((apiResponse: InvoiceApi) => {
     return mapInvoice(apiResponse);
   }) as Invoice[];
 };

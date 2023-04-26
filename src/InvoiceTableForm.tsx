@@ -282,11 +282,7 @@ export const InvoiceTableForm = () => {
             setModalState({ charges: null, isOpen: false, idx: null });
           }}
         >
-          <ChargeFormModalBody
-            charges={modalState.charges}
-            idx={modalState.idx}
-            onClose={closeModal}
-          />
+          <ChargeFormModalBody idx={modalState.idx} onClose={closeModal} />
         </Modal>
       </Flex>
     </InvoiceFormContext.Provider>

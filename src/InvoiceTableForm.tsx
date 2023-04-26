@@ -1,5 +1,5 @@
 import React from "react";
-import { Invoice } from "./api";
+import { Invoice, Charge } from "./api";
 import { useInvoices } from "./InvoiceApiProvider";
 import {
   Flex,
@@ -15,6 +15,13 @@ import {
   TableContainer,
   Select,
   Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import { produce } from "immer";
 
@@ -39,8 +46,73 @@ const useInvoiceForm = (): InvoiceFormContext => {
   return ctx;
 };
 
+type ChargeModalState =
+  | { isOpen: false; charges: null; idx: null }
+  | { isOpen: true; charges: Array<Charge>; idx: number };
+
+interface ChargeModalBodyProps {
+  onClose: () => void;
+  charges: Array<Charge> | null;
+  idx: number | null;
+}
+
+const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
+  const { form, setForm } = useInvoiceForm();
+  const { onClose, charges, idx } = props;
+  if (charges === null || idx === null) return null;
+  return (
+    <>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Charges for {form[idx].name}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <TableContainer>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Price</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {charges.map((charge) => {
+                  const name = Object.keys(charge)[0];
+                  return (
+                    <Tr>
+                      <Td>
+                        <Input value={name} />
+                      </Td>
+                      <Td>
+                        <Input value={charge[name]} />
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </>
+  );
+};
+
 const InvoiceTableFormBody = () => {
   const { form, setForm } = useInvoiceForm();
+  const [modalState, setModalState] = React.useState<ChargeModalState>({
+    isOpen: false,
+    charges: null,
+    idx: null,
+  });
+  const closeModal = () => {
+    setModalState({ charges: null, isOpen: false, idx: null });
+  };
   return (
     <>
       {form.map((invoice, idx) => {
@@ -93,11 +165,33 @@ const InvoiceTableFormBody = () => {
               />
             </Td>
             <Td>
-              <Button>View Charges</Button>
+              <Button
+                onClick={() => {
+                  setModalState({
+                    isOpen: true,
+                    charges: form[idx].charges,
+                    idx: idx,
+                  });
+                }}
+              >
+                View Charges
+              </Button>
             </Td>
           </Tr>
         );
       })}
+      <Modal
+        isOpen={modalState.isOpen}
+        onClose={() => {
+          setModalState({ charges: null, isOpen: false, idx: null });
+        }}
+      >
+        <ChargeFormModalBody
+          charges={modalState.charges}
+          idx={modalState.idx}
+          onClose={closeModal}
+        />
+      </Modal>
     </>
   );
 };

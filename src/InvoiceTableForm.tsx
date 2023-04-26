@@ -68,6 +68,7 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
                 <Tr>
                   <Th>Name</Th>
                   <Th>Price</Th>
+                  <Th>Delete</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -99,6 +100,22 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
                           }}
                           value={charge.value}
                         />
+                      </Td>
+                      <Td>
+                        <Button
+                          onClick={() => {
+                            setForm((prev) => {
+                              return produce(prev, (draft) => {
+                                draft[idx].charges = draft[idx].charges.filter(
+                                  (aCharge) => aCharge.id !== charge.id
+                                );
+                              });
+                            });
+                          }}
+                          colorScheme="red"
+                        >
+                          Delete
+                        </Button>
                       </Td>
                     </Tr>
                   );
@@ -226,6 +243,22 @@ const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
                 View Charges
               </Button>
             </Td>
+            <Td>
+              <Button
+                onClick={() => {
+                  setForm((prev) => {
+                    const newForm = prev.filter((x) => x.id !== invoice.id);
+                    return newForm;
+                    return produce(prev, (draft) => {
+                      const newForm = draft.filter((x) => x.id !== invoice.id);
+                    });
+                  });
+                }}
+                colorScheme="red"
+              >
+                Delete
+              </Button>
+            </Td>
           </Tr>
         );
       })}
@@ -303,7 +336,7 @@ export const InvoiceTableForm = () => {
               <Text>Only show late</Text>
               <Checkbox
                 isChecked={onlyShowLate}
-                onChange={(e) => {
+                onChange={() => {
                   setOnlyShowLate((prev) => !prev);
                 }}
               />
@@ -321,6 +354,7 @@ export const InvoiceTableForm = () => {
                 <Th>Due Date</Th>
                 <Th>Amount</Th>
                 <Th>Charges</Th>
+                <Th>Delete</Th>
               </Tr>
             </Thead>
             <Tbody>

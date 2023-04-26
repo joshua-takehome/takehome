@@ -1,5 +1,5 @@
 import React from "react";
-import { Invoice, Charge } from "./api";
+import { Invoice, Charge, sumCharges } from "./api";
 import { useInvoices } from "./InvoiceApiProvider";
 import {
   Flex,
@@ -22,6 +22,7 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Checkbox,
 } from "@chakra-ui/react";
 import { produce } from "immer";
 
@@ -140,6 +141,8 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
 
 interface InvoiceTableFormBodyProps {
   setModalState: React.Dispatch<React.SetStateAction<ChargeModalState>>;
+  nameFilter: string;
+  onlyShowLate: boolean;
 }
 
 const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
@@ -148,6 +151,8 @@ const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
   return (
     <>
       {form.map((invoice, idx) => {
+        const currentCharges = form[idx].charges;
+        const sum = sumCharges(currentCharges);
         return (
           <Tr key={invoice.id}>
             <Td>{invoice.id}</Td>
@@ -196,6 +201,7 @@ const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
                 type="date"
               />
             </Td>
+            <Td>${sum}</Td>
             <Td>
               <Button
                 onClick={() => {
@@ -226,6 +232,8 @@ export const InvoiceTableForm = () => {
     charges: null,
     idx: null,
   });
+  const [nameFilter, setNameFilter] = React.useState<string>("");
+  const [onlyShowLate, setOnlyShowLate] = React.useState<boolean>(false);
   const closeModal = () => {
     setModalState({ charges: null, isOpen: false, idx: null });
   };
@@ -268,12 +276,16 @@ export const InvoiceTableForm = () => {
                 <Th>Name</Th>
                 <Th>Status</Th>
                 <Th>Due Date</Th>
-                <Th>Sum</Th>
+                <Th>Amount</Th>
                 <Th>Charges</Th>
               </Tr>
             </Thead>
             <Tbody>
-              <InvoiceTableFormBody setModalState={setModalState} />
+              <InvoiceTableFormBody
+                nameFilter={nameFilter}
+                onlyShowLate={onlyShowLate}
+                setModalState={setModalState}
+              />
             </Tbody>
           </Table>
         </TableContainer>

@@ -7,6 +7,17 @@ export interface Charge {
   value: string;
 }
 
+export const sumCharges = (charges: Charge[]): number => {
+  let sum = 0;
+  for (const charge of charges) {
+    const toAdd = Number.parseFloat(charge.value);
+    if (!(Number.isNaN(toAdd))) {
+      sum += toAdd;
+    }
+  }
+  return sum;
+}
+
 export interface InvoiceBase {
   id: number;
   due_date: string;

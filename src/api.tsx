@@ -62,7 +62,7 @@ const mapInvoice = (invoice: InvoiceApi): Invoice => {
 
 export const fetchInvoices = async (): Promise<Invoice[]> => {
   const res = await window.fetch(
-    "https://takehome.api.bidsight.io/v1/invoices",
+    "https://takehome.api.bidsight.io/v2/invoices",
     {
       method: "GET",
     }

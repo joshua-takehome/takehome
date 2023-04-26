@@ -16,6 +16,7 @@ import {
   Select,
   Button,
 } from "@chakra-ui/react";
+import { produce } from "immer";
 
 interface InvoiceFormContext {
   form: Invoice[];
@@ -40,7 +41,6 @@ const useInvoiceForm = (): InvoiceFormContext => {
 
 const InvoiceTableFormBody = () => {
   const { form, setForm } = useInvoiceForm();
-  console.log(form);
   return (
     <>
       {form.map((invoice, idx) => {
@@ -48,17 +48,49 @@ const InvoiceTableFormBody = () => {
           <Tr key={invoice.id}>
             <Td>{invoice.id}</Td>
             <Td>
-              <Input value={invoice.name} />
+              <Input
+                value={invoice.name}
+                onChange={(e) => {
+                  setForm((prev) => {
+                    return produce(prev, (draft) => {
+                      draft[idx].name = e.target.value;
+                    });
+                  });
+                }}
+              />
             </Td>
             <Td>
-              <Select value={invoice.status}>
+              <Select
+                onChange={(e) => {
+                  setForm((prev) => {
+                    return produce(prev, (draft) => {
+                      draft[idx].status = e.target.value;
+                    });
+                  });
+                }}
+                value={invoice.status}
+              >
                 {STATUSES.map((status) => {
-                  return <option value={status.value}>{status.display}</option>;
+                  return (
+                    <option key={status.value} value={status.value}>
+                      {status.display}
+                    </option>
+                  );
                 })}
               </Select>
             </Td>
             <Td>
-              <Input value={invoice.due_date} type="date" />
+              <Input
+                onChange={(e) => {
+                  setForm((prev) => {
+                    return produce(prev, (draft) => {
+                      draft[idx].due_date = e.target.value;
+                    });
+                  });
+                }}
+                value={invoice.due_date}
+                type="date"
+              />
             </Td>
             <Td>
               <Button>View Charges</Button>

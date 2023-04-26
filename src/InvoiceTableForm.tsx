@@ -6,6 +6,7 @@ import {
   Heading,
   Text,
   Input,
+  Textarea,
   Table,
   Thead,
   Tbody,
@@ -76,7 +77,7 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
                   return (
                     <Tr key={charge.id}>
                       <Td>
-                        <Input
+                        <Textarea
                           onChange={(e) => {
                             setForm((prev) => {
                               return produce(prev, (draft) => {
@@ -367,6 +368,7 @@ export const InvoiceTableForm = () => {
           </Table>
         </TableContainer>
         <Modal
+          size="2xl"
           isOpen={modalState.isOpen}
           onClose={() => {
             setModalState({ charges: null, isOpen: false, idx: null });

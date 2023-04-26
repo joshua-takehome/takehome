@@ -1,9 +1,10 @@
 import React from "react";
-import { Invoice, Charge, sumCharges } from "./api";
+import { Invoice, Charge, sumCharges, STATUSES } from "./api";
 import { useInvoices } from "./InvoiceApiProvider";
 import {
   Flex,
   Heading,
+  Text,
   Input,
   Table,
   Thead,
@@ -32,12 +33,6 @@ interface InvoiceFormContext {
 }
 
 const InvoiceFormContext = React.createContext<InvoiceFormContext | null>(null);
-
-const STATUSES = [
-  { value: "draft", display: "Draft" },
-  { value: "outstanding", display: "Outstanding" },
-  { value: "paid", display: "Paid" },
-];
 
 const useInvoiceForm = (): InvoiceFormContext => {
   const ctx = React.useContext(InvoiceFormContext);
@@ -142,15 +137,31 @@ const ChargeFormModalBody = (props: ChargeModalBodyProps) => {
 interface InvoiceTableFormBodyProps {
   setModalState: React.Dispatch<React.SetStateAction<ChargeModalState>>;
   nameFilter: string;
+  statusFilter: string;
   onlyShowLate: boolean;
 }
 
 const InvoiceTableFormBody = (props: InvoiceTableFormBodyProps) => {
-  const { setModalState } = props;
+  const { setModalState, nameFilter, onlyShowLate, statusFilter } = props;
   const { form, setForm } = useInvoiceForm();
   return (
     <>
       {form.map((invoice, idx) => {
+        if (statusFilter !== "" && invoice.status !== statusFilter) {
+          return null;
+        }
+        if (
+          nameFilter !== "" &&
+          !invoice.name.toLowerCase().includes(nameFilter.toLowerCase())
+        ) {
+          return null;
+        }
+        const isLate =
+          invoice.status === "outstanding" &&
+          Date.parse(invoice.due_date) < Date.now();
+        if (onlyShowLate && !isLate) {
+          return null;
+        }
         const currentCharges = form[idx].charges;
         const sum = sumCharges(currentCharges);
         return (
@@ -233,6 +244,7 @@ export const InvoiceTableForm = () => {
     idx: null,
   });
   const [nameFilter, setNameFilter] = React.useState<string>("");
+  const [statusFilter, setStatusFilter] = React.useState("");
   const [onlyShowLate, setOnlyShowLate] = React.useState<boolean>(false);
   const closeModal = () => {
     setModalState({ charges: null, isOpen: false, idx: null });
@@ -265,7 +277,38 @@ export const InvoiceTableForm = () => {
           >
             Create
           </Button>
-          <Button colorScheme="teal">Save</Button>
+          <Flex mr="16px">
+            <Input
+              placeholder="Filter By Name"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+            />
+          </Flex>
+          <Flex mr="16px">
+            <Select
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+              }}
+              value={statusFilter}
+            >
+              {[{ value: "", display: "None" }, ...STATUSES].map((status) => {
+                return (
+                  <option key={status.value} value={status.value}>
+                    {status.display}
+                  </option>
+                );
+              })}
+            </Select>
+            <Flex direction="column" ml="16px" width="300px" height="50px">
+              <Text>Only show late</Text>
+              <Checkbox
+                isChecked={onlyShowLate}
+                onChange={(e) => {
+                  setOnlyShowLate((prev) => !prev);
+                }}
+              />
+            </Flex>
+          </Flex>
         </Flex>
         <TableContainer>
           <Table variant="simple">
@@ -283,6 +326,7 @@ export const InvoiceTableForm = () => {
             <Tbody>
               <InvoiceTableFormBody
                 nameFilter={nameFilter}
+                statusFilter={statusFilter}
                 onlyShowLate={onlyShowLate}
                 setModalState={setModalState}
               />

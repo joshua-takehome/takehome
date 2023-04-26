@@ -1,6 +1,13 @@
 // The key is the name of the charge; the value is the price.
 export type ApiCharge = Record<string, string>;
 
+
+export const STATUSES = [
+  { value: "draft", display: "Draft" },
+  { value: "outstanding", display: "Outstanding" },
+  { value: "paid", display: "Paid" },
+];
+
 export interface Charge {
   id: string;
   name: string;
